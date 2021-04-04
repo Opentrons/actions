@@ -1,0 +1,29 @@
+name: 'Get Version From Git'
+author: 'Opentrons Labworks <engineering@opentrons.com>'
+description: 'Get a version string for a build using git metadata'
+inputs:
+  github-token:
+    description: 'GitHub access token, usually {{ secrets.GITHUB_TOKEN }}'
+    required: true
+  tag-prefix:
+    description: 'Prefix to use when matching tags'
+    required: false
+    default: 'v'
+  bump:
+    description: 'Bump to apply to the latest tag, if commit is past tag'
+    required: false
+    default: 'minor'
+  snapshot-id:
+    description: 'Identifier to add to the version to mark it as a snapshot'
+    required: false
+    default: 'dev'
+  prerelease-id:
+    description: 'If `bump` starts with `pre`, prerelease identifier to use'
+    required: false
+    default: 'alpha'
+outputs:
+  version:
+    description: 'The semantic version string'
+runs:
+  using: 'node12'
+  main: 'dist/main.js'

@@ -7,9 +7,11 @@ This repository contains custom [Actions][] for Opentrons project running CI/CD 
 
 ## Actions
 
-| action | description               |
-| ------ | ------------------------- |
-| TBD    | Something cool, hopefully |
+| action                   | description                                         |
+| ------------------------ | --------------------------------------------------- |
+| [Get Version From Git][] | Get a version string for a build using git metadata |
+
+[get version from git]: ./git-version
 
 ## Contributing
 
