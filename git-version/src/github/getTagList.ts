@@ -9,7 +9,7 @@ export interface TagListOptions {
 interface TagListQueryVariables {
   owner: string
   repo: string
-  query: string
+  match: string
 }
 
 interface TagListQuery {
@@ -24,13 +24,13 @@ interface TagListQuery {
   }
 }
 
-const TAG_LIST_QUERY = `query tagList($owner: String!, $repo: String!, $query: String!) {
+const TAG_LIST_QUERY = `query tagList($owner: String!, $repo: String!, $match: String!) {
   repository(owner: $owner, name: $repo) {
     refs(
       refPrefix: "refs/tags/",
       orderBy: { field: TAG_COMMIT_DATE, direction:DESC },
       first: 20,
-      query: $query
+      query: $match
     ) {
       nodes {
         name
@@ -44,11 +44,11 @@ export function getTagList(options: TagListOptions): Promise<Tag[]> {
   const variables: TagListQueryVariables = {
     owner: repository.owner,
     repo: repository.repo,
-    query: tagPrefix,
+    match: tagPrefix,
   }
 
   return getOctokit()
-    .graphql<TagListQuery>(TAG_LIST_QUERY, { variables })
+    .graphql<TagListQuery>(TAG_LIST_QUERY, { ...variables })
     .then(({ tagList }) => {
       return tagList.repository.refs.nodes.map((node) => ({ tag: node.name }))
     })

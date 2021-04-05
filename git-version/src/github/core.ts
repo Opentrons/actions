@@ -7,6 +7,13 @@ export type Octokit = ReturnType<typeof github.getOctokit>
 
 let _octokit: Octokit | null = null
 
+export const log = {
+  error: (message: string | Error) => core.error(message),
+  warning: (message: string | Error) => core.warning(message),
+  info: (message: string) => core.info(message),
+  debug: (message: string) => core.debug(message),
+}
+
 export function getCommit(): Commit {
   return { commit: github.context.sha }
 }

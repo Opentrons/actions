@@ -1,4 +1,5 @@
 export {
+  log,
   getRepository,
   getCommit,
   getInput,
