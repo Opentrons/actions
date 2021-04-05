@@ -12,7 +12,6 @@ const output = ({ packageName }) => ({
     {
       file: join(packageName, 'dist', 'main.js'),
       format: 'cjs',
-      sourcemap: true,
     },
   ],
 })

@@ -6096,7 +6096,7 @@ const TAG_LIST_QUERY = `query tagList($owner: String!, $repo: String!, $match: S
   repository(owner: $owner, name: $repo) {
     refs(
       refPrefix: "refs/tags/",
-      orderBy: { field: TAG_COMMIT_DATE, direction:DESC },
+      orderBy: { field: TAG_COMMIT_DATE, direction: DESC },
       first: 20,
       query: $match
     ) {
@@ -6746,7 +6746,6 @@ function findAncestorTag(options) {
   const tag = tagQueue.shift();
 
   if (tag == null) {
-    log.warning('Unable to find a valid version tag');
     return Promise.resolve(null);
   }
 
@@ -6756,7 +6755,7 @@ function findAncestorTag(options) {
   });
 
   if (semver === null) {
-    log.warning(`Tag ${tag.tag} did not start with ${tagPrefix} or could not be parsed as SemVer. Continuing search.`);
+    log.warning(`Tag ${tag.tag} did not match ${tagPrefix} or could not be parsed. Continuing search.`);
     return findAncestorTag({ ...options,
       tags: tagQueue
     });
@@ -6830,14 +6829,6 @@ function getGitVersion() {
   const bump = getInput('bump');
   const repository = getRepository();
   const commit = getCommit();
-  log.debug(`
-Calculating version from git:
-- Tag prefix: ${tagPrefix}
-- Bump: ${bump}
-- Repository: ${repository.owner}/${repository.repo}
-- Snapshot identifier: ${snapshotId}
-- Prerelease identifier: ${prereleaseId}
-`.trim());
   return getTagList({
     tagPrefix,
     repository
@@ -6850,19 +6841,19 @@ Calculating version from git:
       repository
     });
   }).then(ancestor => {
-    log.debug(`Found tag ancestor ${JSON.stringify(ancestor)}`);
-    const version = buildVersionString({
+    log.debug(`Found ancestor tag ${JSON.stringify(ancestor)}`);
+    return buildVersionString({
       ancestor,
       commit,
       bump,
       prereleaseId,
       snapshotId
     });
-    log.info(`Generated version: ${version}`);
-    return version;
   });
 }
 
 // action entry point
-getGitVersion().then(version => setOutput('version', version)).catch(error => setFailed(error));
-//# sourceMappingURL=main.js.map
+getGitVersion().then(version => {
+  log.info(`Generated version: ${version}`);
+  setOutput('version', version);
+}).catch(error => setFailed(error));
