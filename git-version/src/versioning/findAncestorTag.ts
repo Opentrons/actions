@@ -17,7 +17,6 @@ export function findAncestorTag(
   const tag = tagQueue.shift()
 
   if (tag == null) {
-    log.warning('Unable to find a valid version tag')
     return Promise.resolve(null)
   }
 
@@ -25,7 +24,7 @@ export function findAncestorTag(
 
   if (semver === null) {
     log.warning(
-      `Tag ${tag.tag} did not start with ${tagPrefix} or could not be parsed as SemVer. Continuing search.`
+      `Tag ${tag.tag} did not match ${tagPrefix} or could not be parsed. Continuing search.`
     )
     return findAncestorTag({ ...options, tags: tagQueue })
   }

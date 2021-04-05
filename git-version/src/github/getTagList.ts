@@ -26,7 +26,7 @@ const TAG_LIST_QUERY = `query tagList($owner: String!, $repo: String!, $match: S
   repository(owner: $owner, name: $repo) {
     refs(
       refPrefix: "refs/tags/",
-      orderBy: { field: TAG_COMMIT_DATE, direction:DESC },
+      orderBy: { field: TAG_COMMIT_DATE, direction: DESC },
       first: 20,
       query: $match
     ) {
