@@ -6135,12 +6135,14 @@ function compareTag(options) {
     head: commit.commit
   };
   const octokit = getOctokit();
+  log.debug(`Comparing base ${params.base} to head ${params.head}`);
   return octokit.repos.compareCommits(params).then(response => {
     const {
       status,
       ahead_by: distance
     } = response.data;
     const isAnscestor = status === 'ahead' || status === 'identical';
+    log.debug(`Head is ${status}, ahead by ${distance}`);
     return isAnscestor ? { ...tag,
       distance
     } : null;
@@ -6744,6 +6746,7 @@ function findAncestorTag(options) {
   const tag = tagQueue.shift();
 
   if (tag == null) {
+    log.warning('Unable to find a valid version tag');
     return Promise.resolve(null);
   }
 
@@ -6753,6 +6756,7 @@ function findAncestorTag(options) {
   });
 
   if (semver === null) {
+    log.warning(`Tag ${tag.tag} did not start with ${tagPrefix} or could not be parsed as SemVer. Continuing search.`);
     return findAncestorTag({ ...options,
       tags: tagQueue
     });
@@ -6826,7 +6830,7 @@ function getGitVersion() {
   const bump = getInput('bump');
   const repository = getRepository();
   const commit = getCommit();
-  log.info(`
+  log.debug(`
 Calculating version from git:
 - Tag prefix: ${tagPrefix}
 - Bump: ${bump}
@@ -6837,12 +6841,16 @@ Calculating version from git:
   return getTagList({
     tagPrefix,
     repository
-  }).then(tags => findAncestorTag({
-    tags,
-    commit,
-    tagPrefix,
-    repository
-  })).then(ancestor => {
+  }).then(tags => {
+    log.debug(`Found tags ${JSON.stringify(tags, null, 2)}`);
+    return findAncestorTag({
+      tags,
+      commit,
+      tagPrefix,
+      repository
+    });
+  }).then(ancestor => {
+    log.debug(`Found tag ancestor ${JSON.stringify(ancestor)}`);
     const version = buildVersionString({
       ancestor,
       commit,

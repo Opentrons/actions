@@ -9,7 +9,7 @@ export function getGitVersion(): Promise<string> {
   const repository = getRepository()
   const commit = getCommit()
 
-  log.info(
+  log.debug(
     `
 Calculating version from git:
 - Tag prefix: ${tagPrefix}
@@ -21,8 +21,14 @@ Calculating version from git:
   )
 
   return getTagList({ tagPrefix, repository })
-    .then((tags) => findAncestorTag({ tags, commit, tagPrefix, repository }))
+    .then((tags) => {
+      log.debug(`Found tags ${JSON.stringify(tags, null, 2)}`)
+
+      return findAncestorTag({ tags, commit, tagPrefix, repository })
+    })
     .then((ancestor) => {
+      log.debug(`Found tag ancestor ${JSON.stringify(ancestor)}`)
+
       const version = buildVersionString({
         ancestor,
         commit,
