@@ -12,14 +12,12 @@ interface TagListQueryVariables {
   match: string
 }
 
-interface TagListQuery {
-  tagList: {
-    repository: {
-      refs: {
-        nodes: Array<{
-          name: string
-        }>
-      }
+interface TagListQueryResult {
+  repository: {
+    refs: {
+      nodes: Array<{
+        name: string
+      }>
     }
   }
 }
@@ -48,8 +46,8 @@ export function getTagList(options: TagListOptions): Promise<Tag[]> {
   }
 
   return getOctokit()
-    .graphql<TagListQuery>(TAG_LIST_QUERY, { ...variables })
-    .then(({ tagList }) => {
-      return tagList.repository.refs.nodes.map((node) => ({ tag: node.name }))
+    .graphql<TagListQueryResult>(TAG_LIST_QUERY, { ...variables })
+    .then((result) => {
+      return result.repository.refs.nodes.map((node) => ({ tag: node.name }))
     })
 }

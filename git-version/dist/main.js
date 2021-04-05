@@ -6117,10 +6117,8 @@ function getTagList(options) {
     match: tagPrefix
   };
   return getOctokit().graphql(TAG_LIST_QUERY, { ...variables
-  }).then(({
-    tagList
-  }) => {
-    return tagList.repository.refs.nodes.map(node => ({
+  }).then(result => {
+    return result.repository.refs.nodes.map(node => ({
       tag: node.name
     }));
   });
