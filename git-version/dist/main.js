@@ -6058,6 +6058,12 @@ exports.getState = getState;
 var core$1 = /*@__PURE__*/getDefaultExportFromCjs(core);
 
 let _octokit = null;
+const log = {
+  error: message => core$1.error(message),
+  warning: message => core$1.warning(message),
+  info: message => core$1.info(message),
+  debug: message => core$1.debug(message)
+};
 function getCommit() {
   return {
     commit: github$1.context.sha
@@ -6086,13 +6092,13 @@ function getOctokit() {
   return _octokit;
 }
 
-const TAG_LIST_QUERY = `query tagList($owner: String!, $repo: String!, $query: String!) {
+const TAG_LIST_QUERY = `query tagList($owner: String!, $repo: String!, $match: String!) {
   repository(owner: $owner, name: $repo) {
     refs(
       refPrefix: "refs/tags/",
       orderBy: { field: TAG_COMMIT_DATE, direction:DESC },
       first: 20,
-      query: $query
+      query: $match
     ) {
       nodes {
         name
@@ -6108,10 +6114,9 @@ function getTagList(options) {
   const variables = {
     owner: repository.owner,
     repo: repository.repo,
-    query: tagPrefix
+    match: tagPrefix
   };
-  return getOctokit().graphql(TAG_LIST_QUERY, {
-    variables
+  return getOctokit().graphql(TAG_LIST_QUERY, { ...variables
   }).then(({
     tagList
   }) => {
@@ -6818,11 +6823,19 @@ function buildVersionString(options) {
 
 function getGitVersion() {
   const tagPrefix = getInput('tag-prefix');
-  const prereleaseId = getInput('prerelease-id');
   const snapshotId = getInput('snapshot-id');
+  const prereleaseId = getInput('prerelease-id');
   const bump = getInput('bump');
   const repository = getRepository();
   const commit = getCommit();
+  log.info(`
+Calculating version from git:
+- Tag prefix: ${tagPrefix}
+- Bump: ${bump}
+- Repository: ${repository.owner}/${repository.repo}
+- Snapshot identifier: ${snapshotId}
+- Prerelease identifier: ${prereleaseId}
+`.trim());
   return getTagList({
     tagPrefix,
     repository
@@ -6832,13 +6845,15 @@ function getGitVersion() {
     tagPrefix,
     repository
   })).then(ancestor => {
-    return buildVersionString({
+    const version = buildVersionString({
       ancestor,
       commit,
       bump,
       prereleaseId,
       snapshotId
     });
+    log.info(`Generated version: ${version}`);
+    return version;
   });
 }
 
