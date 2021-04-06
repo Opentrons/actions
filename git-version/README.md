@@ -42,7 +42,7 @@ steps:
 
 | name      | description                      | example                       |
 | --------- | -------------------------------- | ----------------------------- |
-| `version` | Calculated version for the build | `${{ secrets.GITHUB_TOKEN }}` |
+| `version` | Calculated version for the build | `1.3.0-dev.10+abc1234`  |
 
 ### Example versions
 
