@@ -39,6 +39,6 @@ const createConfig = (options) => ({
   ...plugins(options),
 })
 
-const packages = []
+const packages = [{ packageName: 'git-version' }]
 
 export default packages.map(createConfig)
